@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEC Bilaspur — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy-mid: #1a3260;
+    --gold: #c9a84c;
+    --gold-light: #e8c76e;
+    --cream: #faf8f3;
+    --cream-dark: #f0ece0;
+    --text: #1e1e2e;
+    --text-muted: #6b6b80;
+    --white: #ffffff;
+    --success: #2d7d46;
+    --border: #ddd8cc;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 24px rgba(15,31,61,0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* LOGIN */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+  .login-box {
+    background: white; border-radius: 20px; padding: 48px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .login-box h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; color: var(--navy); margin-bottom: 8px;
+  }
+  .login-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; }
+  .login-box input {
+    width: 100%; padding: 14px 18px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    margin-bottom: 16px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-box input:focus { border-color: var(--navy-mid); }
+  .login-box button {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: white; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .login-box button:hover { transform: translateY(-2px); }
+  .login-error { color: #c0392b; font-size: 13px; margin-top: 12px; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    padding: 28px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header h1 { font-family: 'Playfair Display', serif; color: white; font-size: 24px; }
+  .header p { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 4px; }
+  .logout-btn {
+    padding: 10px 20px; background: rgba(255,255,255,0.15);
+    color: white; border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* MAIN */
+  .main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex; gap: 0; margin-bottom: 28px;
+    background: white; border-radius: 14px; padding: 6px;
+    box-shadow: var(--shadow); width: fit-content;
+  }
+  .tab-btn {
+    padding: 10px 24px; border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; color: var(--text-muted); background: transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--navy); color: white; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media(max-width: 768px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+  .stat-card {
+    background: white; border-radius: 16px; padding: 24px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .stat-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+  .stat-card .value { font-size: 36px; font-weight: 700; color: var(--navy); margin-top: 8px; font-family: 'Playfair Display', serif; }
+  .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* CARD */
+  .card {
+    background: white; border-radius: 20px; box-shadow: var(--shadow);
+    border: 1px solid var(--border); margin-bottom: 24px; overflow: hidden;
+  }
+  .card-header {
+    background: linear-gradient(90deg, var(--navy) 0%, var(--navy-mid) 100%);
+    padding: 18px 24px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-header h2 { font-family: 'Playfair Display', serif; font-size: 17px; color: white; font-weight: 600; }
+  .card-body { padding: 24px; overflow-x: auto; }
+
+  /* EXPORT BTN */
+  .export-btn {
+    padding: 10px 20px;
+    background: var(--gold); color: var(--navy);
+    border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .export-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+  th {
+    background: var(--cream); padding: 12px 14px; text-align: left;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+  }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--cream); }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-yes { background: #d4edda; color: #2d7d46; }
+  .badge-no { background: #fde8e8; color: #c0392b; }
+  .rating-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; background: var(--navy); color: var(--gold-light);
+  }
+
+  /* CHARTS GRID */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media(max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: white; border-radius: 16px; padding: 24px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .chart-card h3 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--navy); margin-bottom: 16px; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 60px; color: var(--text-muted); font-size: 15px; }
+  .spinner {
+    width: 40px; height: 40px; border: 3px solid var(--border);
+    border-top-color: var(--navy); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* AVERAGES TABLE */
+  .avg-table { width: 100%; border-collapse: collapse; }
+  .avg-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .avg-table tr:last-child td { border-bottom: none; }
+  .avg-bar-wrap { width: 200px; background: var(--cream); border-radius: 20px; height: 8px; overflow: hidden; }
+  .avg-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--navy), var(--navy-mid)); }
+  .avg-score { font-weight: 700; color: var(--navy); font-size: 14px; min-width: 36px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div style="font-size:40px;margin-bottom:16px;">🎓</div>
+    <h1>Admin Dashboard</h1>
+    <p>Government Engineering College, Bilaspur<br>Enter your admin password to continue</p>
+    <input type="password" id="passwordInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">Login →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+
+  <div class="header">
+    <div>
+      <h1>GEC Bilaspur — Feedback Dashboard</h1>
+      <p>Quality & Accreditation Cell · Admin Panel</p>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main">
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('parent')">👨‍👩‍👧 Parent Feedback</button>
+      <button class="tab-btn" onclick="switchTab('employer')">🏢 Employer Feedback</button>
+    </div>
+
+    <!-- PARENT PANEL -->
+    <div id="panel-parent">
+      <div class="loading" id="parent-loading">
+        <div class="spinner"></div>
+        Loading parent feedback data...
+      </div>
+      <div id="parent-content" style="display:none;">
+        <!-- Stats -->
+        <div class="stats-row" id="parent-stats"></div>
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Facility Ratings — Average</h3>
+            <canvas id="facilityChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Teaching Ratings — Average</h3>
+            <canvas id="teachingChart"></canvas>
+          </div>
+        </div>
+        <!-- Averages Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📊 Rating Averages</h2>
+            <button class="export-btn" onclick="exportParentExcel()">⬇️ Export to Excel</button>
+          </div>
+          <div class="card-body">
+            <table class="avg-table" id="parent-avg-table"></table>
+          </div>
+        </div>
+        <!-- Submissions Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📋 All Submissions</h2>
+            <span style="color:rgba(255,255,255,0.6);font-size:13px;" id="parent-count"></span>
+          </div>
+          <div class="card-body">
+            <table id="parent-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Roll No</th>
+                  <th>Parent Name</th>
+                  <th>Student Name</th>
+                  <th>Email</th>
+                  <th>Branch</th>
+                  <th>Session</th>
+                  <th>Satisfied</th>
+                  <th>Avg Rating</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="parent-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPLOYER PANEL -->
+    <div id="panel-employer" style="display:none;">
+      <div class="loading" id="employer-loading">
+        <div class="spinner"></div>
+        Loading employer feedback data...
+      </div>
+      <div id="employer-content" style="display:none;">
+        <!-- Stats -->
+        <div class="stats-row" id="employer-stats"></div>
+        <!-- Chart -->
+        <div class="charts-grid">
+          <div class="chart-card" style="grid-column: span 2;">
+            <h3>Programme Outcome Ratings — Average</h3>
+            <canvas id="poChart"></canvas>
+          </div>
+        </div>
+        <!-- Averages -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📊 Programme Outcome Averages</h2>
+            <button class="export-btn" onclick="exportEmployerExcel()">⬇️ Export to Excel</button>
+          </div>
+          <div class="card-body">
+            <table class="avg-table" id="employer-avg-table"></table>
+          </div>
+        </div>
+        <!-- Submissions Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📋 All Submissions</h2>
+            <span style="color:rgba(255,255,255,0.6);font-size:13px;" id="employer-count"></span>
+          </div>
+          <div class="card-body">
+            <table id="employer-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Organisation</th>
+                  <th>Industry Type</th>
+                  <th>Contact Person</th>
+                  <th>Email</th>
+                  <th>Mobile</th>
+                  <th>Avg Rating</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="employer-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API = 'https://gec-feedback-backend.vercel.app';
+  const ADMIN_PASSWORD = 'gec@admin2025';
+  const ADMIN_TOKEN = 'gec-admin-2025';
+
+  let parentData = [];
+  let employerData = [];
+
+  // ── LOGIN ──
+  function login() {
+    const pwd = document.getElementById('passwordInput').value;
+    if (pwd === ADMIN_PASSWORD) {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadParentData();
+    } else {
+      document.getElementById('loginError').textContent = '⚠️ Incorrect password. Please try again.';
+    }
+  }
+
+  function logout() {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+  }
+
+  // ── TABS ──
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', ['parent','employer'][i] === name);
+    });
+    document.getElementById('panel-parent').style.display = name === 'parent' ? 'block' : 'none';
+    document.getElementById('panel-employer').style.display = name === 'employer' ? 'block' : 'none';
+    if (name === 'employer' && employerData.length === 0) loadEmployerData();
+  }
+
+  // ── FETCH PARENT DATA ──
+  async function loadParentData() {
+    try {
+      const res = await fetch(`${API}/api/get-parent-feedback`, {
+        headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` }
+      });
+      const json = await res.json();
+      parentData = json.data || [];
+      renderParentDashboard();
+    } catch (err) {
+      document.getElementById('parent-loading').innerHTML = '⚠️ Failed to load data. Please refresh.';
+    }
+  }
+
+  // ── FETCH EMPLOYER DATA ──
+  async function loadEmployerData() {
+    try {
+      const res = await fetch(`${API}/api/get-employer-feedback`, {
+        headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` }
+      });
+      const json = await res.json();
+      employerData = json.data || [];
+      renderEmployerDashboard();
+    } catch (err) {
+      document.getElementById('employer-loading').innerHTML = '⚠️ Failed to load data. Please refresh.';
+    }
+  }
+
+  // ── HELPERS ──
+  function avg(arr, key) {
+    const vals = arr.map(r => parseFloat(r[key])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2) : 'N/A';
+  }
+
+  function avgNum(arr, key) {
+    const vals = arr.map(r => parseFloat(r[key])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+  }
+
+  function rowAvg(row, keys) {
+    const vals = keys.map(k => parseFloat(row[k])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : 'N/A';
+  }
+
+  function formatDate(d) {
+    if (!d) return '-';
+    return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  // ── RENDER PARENT DASHBOARD ──
+  function renderParentDashboard() {
+    document.getElementById('parent-loading').style.display = 'none';
+    document.getElementById('parent-content').style.display = 'block';
+
+    const total = parentData.length;
+    const satisfied = parentData.filter(r => r.satisfied === true).length;
+    const satisfiedPct = total ? Math.round((satisfied / total) * 100) : 0;
+
+    const facilityKeys = ['pf_library','pf_games','pf_canteen','pf_water','pf_toilet','pf_class','pf_lab','pf_personality','pf_career'];
+    const teachingKeys = ['pt_attitude','pt_quality','pt_exams','pt_discipline','pp_placement'];
+    const allKeys = [...facilityKeys, ...teachingKeys];
+
+    const overallAvg = total ? (parentData.reduce((sum, r) => {
+      const vals = allKeys.map(k => parseFloat(r[k])).filter(v => !isNaN(v) && v > 0);
+      return sum + (vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0);
+    }, 0) / total).toFixed(2) : 'N/A';
+
+    // Stats
+    document.getElementById('parent-stats').innerHTML = `
+      <div class="stat-card"><div class="label">Total Submissions</div><div class="value">${total}</div><div class="sub">Parent feedback forms</div></div>
+      <div class="stat-card"><div class="label">Satisfied Parents</div><div class="value">${satisfiedPct}%</div><div class="sub">${satisfied} out of ${total}</div></div>
+      <div class="stat-card"><div class="label">Overall Avg Rating</div><div class="value">${overallAvg}</div><div class="sub">Out of 5.00</div></div>
+      <div class="stat-card"><div class="label">Branches</div><div class="value">${[...new Set(parentData.map(r=>r.branch).filter(Boolean))].length}</div><div class="sub">Unique branches</div></div>
+    `;
+    document.getElementById('parent-count').textContent = `${total} submissions`;
+
+    // Facility Chart
+    const facilityLabels = ['Library','Sports','Canteen','Water','Toilets','Classrooms','Lab','Personality','Career'];
+    const facilityAvgs = facilityKeys.map(k => avgNum(parentData, k));
+    renderBarChart('facilityChart', facilityLabels, facilityAvgs);
+
+    // Teaching Chart
+    const teachingLabels = ['Staff Attitude','Teaching Quality','Exams','Discipline','Placement'];
+    const teachingAvgs = teachingKeys.map(k => avgNum(parentData, k));
+    renderBarChart('teachingChart', teachingLabels, teachingAvgs);
+
+    // Averages Table
+    const avgRows = [
+      ...facilityLabels.map((l, i) => [l, facilityAvgs[i]]),
+      ...teachingLabels.map((l, i) => [l, teachingAvgs[i]])
+    ];
+    document.getElementById('parent-avg-table').innerHTML = avgRows.map(([label, score]) => `
+      <tr>
+        <td style="font-weight:500;width:200px;">${label}</td>
+        <td><div class="avg-bar-wrap"><div class="avg-bar" style="width:${(score/5)*100}%"></div></div></td>
+        <td class="avg-score">${score > 0 ? score.toFixed(2) : 'N/A'}</td>
+        <td style="color:var(--text-muted);font-size:12px;">/ 5.00</td>
+      </tr>
+    `).join('');
+
+    // Submissions Table
+    document.getElementById('parent-tbody').innerHTML = parentData.map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${r.roll_no || '-'}</strong></td>
+        <td>${r.parent_name || '-'}</td>
+        <td>${r.student_name || '-'}</td>
+        <td style="font-size:12px;">${r.email || '-'}</td>
+        <td>${r.branch || '-'}</td>
+        <td>${r.academic_session || '-'}</td>
+        <td><span class="badge ${r.satisfied ? 'badge-yes' : 'badge-no'}">${r.satisfied ? 'Yes' : 'No'}</span></td>
+        <td><span class="rating-pill">${rowAvg(r, allKeys)}</span></td>
+        <td style="font-size:12px;">${formatDate(r.submitted_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── RENDER EMPLOYER DASHBOARD ──
+  function renderEmployerDashboard() {
+    document.getElementById('employer-loading').style.display = 'none';
+    document.getElementById('employer-content').style.display = 'block';
+
+    const total = employerData.length;
+    const poKeys = ['po_knowledge','po_analysis','po_design','po_invest','po_tools','po_society','po_sustain','po_ethics','po_team','po_comm','po_mgmt','po_learn'];
+
+    const overallAvg = total ? (employerData.reduce((sum, r) => {
+      const vals = poKeys.map(k => parseFloat(r[k])).filter(v => !isNaN(v) && v > 0);
+      return sum + (vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0);
+    }, 0) / total).toFixed(2) : 'N/A';
+
+    document.getElementById('employer-stats').innerHTML = `
+      <div class="stat-card"><div class="label">Total Submissions</div><div class="value">${total}</div><div class="sub">Employer feedback forms</div></div>
+      <div class="stat-card"><div class="label">Overall Avg Rating</div><div class="value">${overallAvg}</div><div class="sub">Out of 5.00</div></div>
+      <div class="stat-card"><div class="label">Industries</div><div class="value">${[...new Set(employerData.map(r=>r.industry_type).filter(Boolean))].length}</div><div class="sub">Unique industry types</div></div>
+      <div class="stat-card"><div class="label">Organisations</div><div class="value">${total}</div><div class="sub">Total organisations</div></div>
+    `;
+    document.getElementById('employer-count').textContent = `${total} submissions`;
+
+    const poLabels = ['Eng Knowledge','Problem Analysis','Design','Investigation','Tools','Society','Sustainability','Ethics','Teamwork','Communication','Management','Lifelong Learning'];
+    const poAvgs = poKeys.map(k => avgNum(employerData, k));
+    renderBarChart('poChart', poLabels, poAvgs);
+
+    // Averages Table
+    document.getElementById('employer-avg-table').innerHTML = poLabels.map((label, i) => `
+      <tr>
+        <td style="font-weight:500;width:200px;">${label}</td>
+        <td><div class="avg-bar-wrap"><div class="avg-bar" style="width:${(poAvgs[i]/5)*100}%"></div></div></td>
+        <td class="avg-score">${poAvgs[i] > 0 ? poAvgs[i].toFixed(2) : 'N/A'}</td>
+        <td style="color:var(--text-muted);font-size:12px;">/ 5.00</td>
+      </tr>
+    `).join('');
+
+    // Submissions Table
+    document.getElementById('employer-tbody').innerHTML = employerData.map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${r.organisation_name || '-'}</strong></td>
+        <td>${r.industry_type || '-'}</td>
+        <td>${r.contact_person || '-'}</td>
+        <td style="font-size:12px;">${r.email || '-'}</td>
+        <td>${r.mobile || '-'}</td>
+        <td><span class="rating-pill">${rowAvg(r, poKeys)}</span></td>
+        <td style="font-size:12px;">${formatDate(r.submitted_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── CHARTS ──
+  const chartInstances = {};
+  function renderBarChart(id, labels, data) {
+    if (chartInstances[id]) chartInstances[id].destroy();
+    const ctx = document.getElementById(id).getContext('2d');
+    chartInstances[id] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: 'rgba(15,31,61,0.8)',
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0, max: 5, ticks: { stepSize: 1 }, grid: { color: '#f0ece0' } },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // ── EXPORT PARENT EXCEL ──
+  function exportParentExcel() {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1 - Raw Data
+    const headers = ['ID','Roll No','Parent Name','Student Name','Email','Session','Branch','Year of Admission','Duration','Satisfied','Suggestions','Library','Sports','Canteen','Water','Toilets','Classrooms','Lab','Personality','Career Counseling','Staff Attitude','Teaching Quality','Exams','Discipline','Placement','Submitted At'];
+    const rows = parentData.map(r => [
+      r.id, r.roll_no, r.parent_name, r.student_name, r.email,
+      r.academic_session, r.branch, r.year_of_admission, r.duration_as_member,
+      r.satisfied ? 'Yes' : 'No', r.suggestions,
+      r.pf_library, r.pf_games, r.pf_canteen, r.pf_water, r.pf_toilet,
+      r.pf_class, r.pf_lab, r.pf_personality, r.pf_career,
+      r.pt_attitude, r.pt_quality, r.pt_exams, r.pt_discipline, r.pp_placement,
+      formatDate(r.submitted_at)
+    ]);
+    const ws1 = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    XLSX.utils.book_append_sheet(wb, ws1, 'All Submissions');
+
+    // Sheet 2 - Averages
+    const facilityKeys = ['pf_library','pf_games','pf_canteen','pf_water','pf_toilet','pf_class','pf_lab','pf_personality','pf_career'];
+    const teachingKeys = ['pt_attitude','pt_quality','pt_exams','pt_discipline','pp_placement'];
+    const facilityLabels = ['Library','Sports & Recreation','Canteen','Drinking Water','Toilets','Classrooms','Laboratory','Personality Development','Career Counseling'];
+    const teachingLabels = ['Staff Attitude','Teaching Quality','Conduct of Exams','Campus Discipline','Placement Support'];
+
+    const avgHeaders = ['Category', 'Rating Parameter', 'Average Rating (out of 5)'];
+    const avgRows = [
+      ...facilityLabels.map((l, i) => ['Facilities', l, avgNum(parentData, facilityKeys[i]).toFixed(2)]),
+      ...teachingLabels.map((l, i) => ['Teaching', l, avgNum(parentData, teachingKeys[i]).toFixed(2)])
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet([avgHeaders, ...avgRows]);
+    XLSX.utils.book_append_sheet(wb, ws2, 'Rating Averages');
+
+    XLSX.writeFile(wb, `GEC_Parent_Feedback_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  // ── EXPORT EMPLOYER EXCEL ──
+  function exportEmployerExcel() {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1 - Raw Data
+    const headers = ['ID','Organisation','Industry Type','Address','Contact Person','Designation','Mobile','Email','Suggestions','Eng Knowledge','Problem Analysis','Design','Investigation','Tools','Society','Sustainability','Ethics','Teamwork','Communication','Management','Lifelong Learning','Submitted At'];
+    const rows = employerData.map(r => [
+      r.id, r.organisation_name, r.industry_type, r.address,
+      r.contact_person, r.designation, r.mobile, r.email, r.suggestions,
+      r.po_knowledge, r.po_analysis, r.po_design, r.po_invest, r.po_tools,
+      r.po_society, r.po_sustain, r.po_ethics, r.po_team, r.po_comm,
+      r.po_mgmt, r.po_learn, formatDate(r.submitted_at)
+    ]);
+    const ws1 = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    XLSX.utils.book_append_sheet(wb, ws1, 'All Submissions');
+
+    // Sheet 2 - Averages
+    const poKeys = ['po_knowledge','po_analysis','po_design','po_invest','po_tools','po_society','po_sustain','po_ethics','po_team','po_comm','po_mgmt','po_learn'];
+    const poLabels = ['Engineering Knowledge','Problem Analysis','Design & Development','Investigation','Modern Tools','Engineer & Society','Sustainability','Ethics','Individual & Teamwork','Communication','Project Management','Life-Long Learning'];
+    const avgHeaders = ['Programme Outcome', 'Average Rating (out of 5)'];
+    const avgRows = poLabels.map((l, i) => [l, avgNum(employerData, poKeys[i]).toFixed(2)]);
+    const ws2 = XLSX.utils.aoa_to_sheet([avgHeaders, ...avgRows]);
+    XLSX.utils.book_append_sheet(wb, ws2, 'PO Averages');
+
+    XLSX.writeFile(wb, `GEC_Employer_Feedback_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+</script>
+</body>
+</html>
