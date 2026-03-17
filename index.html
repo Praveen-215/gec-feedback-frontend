@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEC Bilaspur — Feedback Portal P&E</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy-mid: #1a3260;
+    --gold: #c9a84c;
+    --gold-light: #e8c76e;
+    --cream: #faf8f3;
+    --cream-dark: #f0ece0;
+    --text: #1e1e2e;
+    --text-muted: #6b6b80;
+    --white: #ffffff;
+    --success: #2d7d46;
+    --border: #ddd8cc;
+    --card-bg: #ffffff;
+    --input-bg: #fdfcf9;
+    --shadow: 0 4px 24px rgba(15,31,61,0.10);
+    --shadow-lg: 0 12px 48px rgba(15,31,61,0.16);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HERO / HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #243a6e 100%);
+    padding: 48px 24px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201,168,76,0.18);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .site-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .site-header h1 span { color: var(--gold-light); }
+  .site-header p {
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  /* ── TAB SWITCHER ── */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .tab-btn {
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn:first-child { border-radius: 12px 0 0 12px; }
+  .tab-btn:last-child { border-radius: 0 12px 12px 0; }
+  .tab-btn.active {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+    box-shadow: 0 4px 16px rgba(201,168,76,0.4);
+  }
+  .tab-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    max-width: 820px;
+    margin: -28px auto 60px;
+    padding: 0 20px;
+  }
+
+  /* ── FORM PANELS ── */
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    overflow: hidden;
+    animation: slideUp 0.45s ease both;
+  }
+  .card:nth-child(2) { animation-delay: 0.06s; }
+  .card:nth-child(3) { animation-delay: 0.12s; }
+  .card:nth-child(4) { animation-delay: 0.18s; }
+  .card:nth-child(5) { animation-delay: 0.24s; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    background: linear-gradient(90deg, var(--navy) 0%, var(--navy-mid) 100%);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .card-header-icon {
+    width: 42px; height: 42px;
+    background: rgba(201,168,76,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .card-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--white);
+    font-weight: 600;
+  }
+  .card-header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+  }
+
+  .card-body { padding: 28px; }
+
+  /* ── SECTION HEADER (within card body) ── */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--navy);
+    font-weight: 600;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--cream-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    width: 4px; height: 18px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 22px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 7px;
+    letter-spacing: 0.2px;
+  }
+  .field-label .required { color: #c0392b; margin-left: 3px; }
+  .field-label .hindi {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 11px 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    appearance: none;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--navy-mid);
+    box-shadow: 0 0 0 3px rgba(26,50,96,0.1);
+  }
+  textarea { resize: vertical; height: 50px; line-height: 1.6;  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230f1f3d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  /* ── TWO COL GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media(max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── RADIO / CHECKBOX ── */
+  .radio-group, .check-group { display: flex; flex-direction: column; gap: 10px; }
+  .radio-group.inline, .check-group.inline {
+    flex-direction: row; flex-wrap: wrap; gap: 12px;
+  }
+  .radio-opt, .check-opt {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+  }
+  .radio-opt input, .check-opt input { display: none; }
+  .radio-custom, .check-custom {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    background: var(--input-bg);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .radio-custom { border-radius: 50%; }
+  .check-custom { border-radius: 5px; }
+  .radio-opt input:checked ~ .radio-custom {
+    border-color: var(--navy);
+    background: var(--navy);
+    box-shadow: inset 0 0 0 4px white;
+  }
+  .check-opt input:checked ~ .check-custom {
+    border-color: var(--navy);
+    background: var(--navy);
+  }
+  .check-opt input:checked ~ .check-custom::after {
+    content: '✓';
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .radio-opt span:last-child, .check-opt span:last-child {
+    font-size: 14px; color: var(--text);
+  }
+
+  /* ── RATING SCALE (1-5) ── */
+  .rating-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--cream);
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+  .rating-item:last-child { margin-bottom: 0; }
+  .rating-label {
+    flex: 1;
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .rating-label .sub {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .stars {
+    display: flex;
+    gap: 6px;
+  }
+  .stars label {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 3px; cursor: pointer;
+  }
+  .stars label input { display: none; }
+  .star-dot {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.18s;
+  }
+  .stars label input:checked ~ .star-dot {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--gold-light);
+    box-shadow: 0 2px 8px rgba(15,31,61,0.3);
+  }
+  .stars label:hover .star-dot {
+    background: var(--cream-dark);
+    border-color: var(--navy-mid);
+    color: var(--navy);
+  }
+  .stars-legend {
+    display: flex; justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    padding: 0 2px;
+    margin-top: 2px;
+  }
+
+  /* ── YES/NO TOGGLE ── */
+  .yn-group { display: flex; gap: 12px; }
+  .yn-opt { flex: 1; }
+  .yn-opt input { display: none; }
+  .yn-box {
+    display: flex; align-items: center; justify-content: center;
+    padding: 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    background: var(--input-bg);
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .yn-opt input:checked ~ .yn-box {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(15,31,61,0.25);
+  }
+
+  /* ── ADEQUACY OPTIONS ── */
+  .adeq-group { display: flex; gap: 10px; flex-wrap: wrap; }
+  .adeq-opt { flex: 1; min-width: 100px; }
+  .adeq-opt input { display: none; }
+  .adeq-box {
+    display: block;
+    text-align: center;
+    padding: 10px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-muted);
+    background: var(--input-bg);
+    transition: all 0.2s;
+  }
+  .adeq-opt input:checked ~ .adeq-box {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: var(--white);
+  }
+
+  /* ── EXTENT OPTIONS ── */
+  .extent-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .extent-opt input { display: none; }
+  .extent-box {
+    display: block;
+    text-align: center;
+    padding: 10px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-muted);
+    background: var(--input-bg);
+    transition: all 0.2s;
+  }
+  .extent-opt input:checked ~ .extent-box {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: var(--white);
+  }
+  @media(max-width: 420px) {
+    .extent-group { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── NOTE BOX ── */
+  .note-box {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+    border-left: 4px solid var(--navy-mid);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--navy-mid);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .note-box strong { display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* ── SUBMIT ── */
+  .submit-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 24px 28px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+    gap: 12px;
+    align-items: center;
+  }
+  .btn-reset {
+    padding: 12px 24px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--navy); color: var(--navy); }
+  .btn-submit {
+    padding: 12px 36px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(15,31,61,0.3);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15,31,61,0.4);
+  }
+  .btn-submit::after { content: '→'; }
+
+  /* ── SUCCESS TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 30px; right: 30px;
+    background: var(--success);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 999;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    background: var(--cream-dark);
+  }
+
+  /* ── PROGRESS HINT ── */
+  .form-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+    padding: 0 4px;
+  }
+  .form-meta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--navy);
+  }
+  .form-meta-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Responsive adjustments */
+  @media(max-width: 640px) {
+    .tab-btn { padding: 12px 16px; font-size: 12px; }
+    .card-body { padding: 20px; }
+    .card-header { padding: 16px 20px; }
+    .submit-row { padding: 18px 20px; }
+    .rating-item { flex-direction: column; align-items: flex-start; }
+    .stars { align-self: flex-end; }
+  }
+
+  /* ── EMAIL VERIFY ── */
+  .email-verify-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .email-verify-row input { flex: 1; }
+  .btn-verify {
+    padding: 11px 18px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(15,31,61,0.25);
+  }
+  .btn-verify:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15,31,61,0.35); }
+  .btn-verify:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .email-status-msg {
+    display: block;
+    font-size: 13px;
+    margin-top: 7px;
+    font-weight: 500;
+    min-height: 18px;
+  }
+  .email-status-msg.success { color: var(--success); }
+  .email-status-msg.error { color: #c0392b; }
+  .email-status-msg.info { color: var(--navy-mid); }
+
+
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-badge">🎓 Accreditation &amp; Quality Cell</div>
+  <h1>Government Engineering College<br><span>Bilaspur</span></h1>
+  <p>Your feedback shapes our institution. Please share your honest experience to help us grow.</p>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('parent')">👨‍👩‍👧 Parent</button>
+    
+    <button class="tab-btn" onclick="switchTab('employer')">🏢 Employer</button>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ════════════════════════════════════════
+     PARENT FEEDBACK FORM
+═══════════════════════════════════════════ -->
+<div id="panel-parent" class="form-panel active">
+  <div class="form-meta">
+    <div>
+      <div class="form-meta-title">Parent Feedback Form</div>
+      <div class="form-meta-sub">अभिभावक प्रतिक्रिया प्रपत्र</div>
+    </div>
+  </div>
+
+  <form id="form-parent" onsubmit="handleSubmit(event,'parent')">
+
+    <!-- IDENTITY -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">👤</div>
+        <div>
+          <h2>Personal Information / व्यक्तिगत जानकारी</h2>
+          <p>Basic details about you and your ward</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Parent's Name <span class="required">*</span>
+              <span class="hindi">अभिभावक का नाम</span>
+            </label>
+            <input type="text" id="p-parent-name" placeholder="Enter your full name" required>
+          </div>
+          <div class="field">
+            <label class="field-label">Student's Name <span class="required">*</span>
+              <span class="hindi">छात्र/छात्रा का नाम</span>
+            </label>
+            <input type="text" id="p-student-name" placeholder="Enter student's full name" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Student's Roll No. <span class="required">*</span>
+            <span class="hindi">छात्र/छात्रा का रोल नंबर</span>
+          </label>
+          <input type="number" id="p-roll-no" placeholder="Enter student's roll number" min="1" max="999999999999" oninput="if(this.value.length > 12) this.value = this.value.slice(0,12)" required>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Academic Session <span class="required">*</span>
+              <span class="hindi">शैक्षणिक सत्र</span>
+            </label>
+            <select id="p-session" required>
+              <option value="">Select session</option>
+              <option>2015–2016</option>
+              <option>2016–2017</option>
+              <option>2017–2018</option>
+              <option>2018–2019</option>
+              <option>2019–2020</option>
+              <option>2020–2021</option>
+              <option>2021–2022</option>
+              <option>2022–2023</option>
+              <option>2023–2024</option>
+              <option>2024–2025</option>
+              <option>2025–2026</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Branch / विभाग <span class="required">*</span></label>
+            <select id="p-branch" required>
+              <option value="">Select branch</option>
+              <option>Computer Science Engineering</option>
+              <option>Electrical Engineering</option>
+              <option>Information Technology</option>
+              <option>Mining Engineering</option>
+              <option>Civil Engineering</option>
+              <option>Mechanical Engineering</option>
+              <option>Electronics & Telecommunication Engineering</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Year of Admission <span class="required">*</span>
+              <span class="hindi">प्रवेश वर्ष</span>
+            </label>
+            <select id="p-year" required>
+              <option value="">Select entry type</option>
+              <option>1st Year (Direct Entry)</option>
+              <option>2nd Year (Lateral Entry)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Duration as Parent Member <span class="required">*</span>
+              <span class="hindi">अभिभावक सदस्य के रूप में अवधि</span>
+            </label>
+            <input type="text" id="p-duration" placeholder="e.g., 2 years">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Email ID <span class="required">*</span>
+            <span class="hindi">ईमेल आईडी</span>
+          </label>
+          <div class="email-verify-row">
+            <input type="email" id="parent-email" placeholder="Enter your email address" required>
+            <button type="button" id="verify-btn" class="btn-verify" onclick="sendVerificationEmail()">Send Link</button>
+          </div>
+          <span id="email-status" class="email-status-msg"></span>
+
+        </div>
+        <div class="field">
+          <label class="field-label">Are you satisfied with the college's past academic results? <span class="required">*</span>
+            <span class="hindi">क्या आप महाविद्यालय के पिछले शैक्षणिक परिणामों से संतुष्ट हैं?</span>
+          </label>
+          <div class="yn-group">
+            <label class="yn-opt"><input type="radio" name="p_satisfied" value="yes" required><span class="yn-box">✅ Yes / हाँ</span></label>
+            <label class="yn-opt"><input type="radio" name="p_satisfied" value="no"><span class="yn-box">❌ No / नहीं</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACILITIES -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🏛️</div>
+        <div>
+          <h2>Student Facilities / छात्र सुविधाएँ</h2>
+          <p>Rate each facility from 1 (Poor) to 5 (Excellent)</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="note-box">
+          <strong>Rating Scale / मूल्यांकन पैमाना</strong>
+          5 = Excellent / उत्कृष्ट &nbsp;|&nbsp; 4 = Very Good / बहुत अच्छा &nbsp;|&nbsp; 3 = Good / अच्छा &nbsp;|&nbsp; 2 = Average / औसत &nbsp;|&nbsp; 1 = Poor / खराब
+        </div>
+
+        <!-- helper macro inline via repeated HTML -->
+        <div id="p-facilities">
+          <!-- Library -->
+          <div class="rating-item">
+            <div class="rating-label">Library &amp; Reading Room <span class="sub">पुस्तकालय एवं पठन कक्ष</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_library" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_library" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_library" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_library" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_library" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Games -->
+          <div class="rating-item">
+            <div class="rating-label">Sports &amp; Recreation <span class="sub">खेल एवं मनोरंजन</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_games" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_games" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_games" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_games" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_games" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Canteen -->
+          <div class="rating-item">
+            <div class="rating-label">Canteen <span class="sub">कैंटीन</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_canteen" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_canteen" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_canteen" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_canteen" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_canteen" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Drinking Water -->
+          <div class="rating-item">
+            <div class="rating-label">Drinking Water <span class="sub">पेयजल सुविधा</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_water" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_water" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_water" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_water" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_water" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Toilets -->
+          <div class="rating-item">
+            <div class="rating-label">Toilet &amp; Sanitation <span class="sub">शौचालय एवं स्वच्छता</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_toilet" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_toilet" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_toilet" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_toilet" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_toilet" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Classrooms -->
+          <div class="rating-item">
+            <div class="rating-label">Classrooms <span class="sub">कक्षाएँ</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_class" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_class" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_class" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_class" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_class" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Laboratory -->
+          <div class="rating-item">
+            <div class="rating-label">Laboratory <span class="sub">प्रयोगशाला</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_lab" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_lab" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_lab" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_lab" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_lab" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Personality -->
+          <div class="rating-item">
+            <div class="rating-label">Student Personality Development <span class="sub">छात्र व्यक्तित्व विकास</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_personality" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_personality" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_personality" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_personality" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_personality" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+          <!-- Career Counseling -->
+          <div class="rating-item">
+            <div class="rating-label">Career Counseling Cell <span class="sub">करियर परामर्श प्रकोष्ठ</span></div>
+            <div class="stars">
+              <label><input type="radio" name="pf_career" value="1" required><span class="star-dot">1</span></label>
+              <label><input type="radio" name="pf_career" value="2"><span class="star-dot">2</span></label>
+              <label><input type="radio" name="pf_career" value="3"><span class="star-dot">3</span></label>
+              <label><input type="radio" name="pf_career" value="4"><span class="star-dot">4</span></label>
+              <label><input type="radio" name="pf_career" value="5"><span class="star-dot">5</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEACHING -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📚</div>
+        <div>
+          <h2>Teaching, Faculty &amp; Methods / शिक्षण, शिक्षक एवं पद्धतियाँ</h2>
+          <p>Rate the quality of education delivered</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="rating-item">
+          <div class="rating-label">Attitude of Teaching Staff <span class="sub">शिक्षण कर्मचारियों का रवैया</span></div>
+          <div class="stars">
+            <label><input type="radio" name="pt_attitude" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="pt_attitude" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="pt_attitude" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="pt_attitude" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="pt_attitude" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Quality of Teaching <span class="sub">शिक्षण की गुणवत्ता</span></div>
+          <div class="stars">
+            <label><input type="radio" name="pt_quality" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="pt_quality" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="pt_quality" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="pt_quality" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="pt_quality" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Conduct of Tests &amp; Examinations <span class="sub">परीक्षाओं का संचालन</span></div>
+          <div class="stars">
+            <label><input type="radio" name="pt_exams" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="pt_exams" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="pt_exams" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="pt_exams" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="pt_exams" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Campus Discipline <span class="sub">परिसर अनुशासन</span></div>
+          <div class="stars">
+            <label><input type="radio" name="pt_discipline" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="pt_discipline" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="pt_discipline" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="pt_discipline" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="pt_discipline" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Placement &amp; Training Support <span class="sub">प्लेसमेंट एवं प्रशिक्षण सहायता</span></div>
+          <div class="stars">
+            <label><input type="radio" name="pp_placement" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="pp_placement" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="pp_placement" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="pp_placement" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="pp_placement" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">💬</div>
+        <div><h2>Additional Comments / अतिरिक्त टिप्पणियाँ</h2></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">Any Suggestions or Feedback
+            <span class="hindi">कोई सुझाव या प्रतिक्रिया</span>
+          </label>
+          <textarea id="p-suggestions" placeholder="Share your thoughts, suggestions, or concerns here..."></textarea>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button type="reset" class="btn-reset">Clear Form</button>
+        <button type="submit" id="parent-submit-btn" class="btn-submit" disabled style="opacity:0.5;cursor:not-allowed;">Submit Feedback</button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+
+
+<!-- ════════════════════════════════════════
+     EMPLOYER FEEDBACK FORM
+═══════════════════════════════════════════ -->
+<div id="panel-employer" class="form-panel">
+  <div class="form-meta">
+    <div>
+      <div class="form-meta-title">Employer Feedback Form</div>
+      <div class="form-meta-sub">Help us align our graduates with industry needs</div>
+    </div>
+  </div>
+
+  <form id="form-employer" onsubmit="handleSubmit(event,'employer')">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🏢</div>
+        <div>
+          <h2>Industry Profile</h2>
+          <p>Tell us about your organisation</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="note-box"><strong>Note</strong>Your valuable inputs will help us improve the quality of graduates and enhance GEC Bilaspur's credibility. All information is kept confidential.</div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Name of the Industry / Organisation <span class="required">*</span></label>
+            <input type="text" id="e-org-name" placeholder="Organisation name" required>
+          </div>
+          <div class="field">
+            <label class="field-label">Type of Industry <span class="required">*</span></label>
+            <input type="text" id="e-industry-type" placeholder="e.g. IT, Manufacturing, Consulting" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Address of Industry <span class="required">*</span></label>
+          <textarea id="e-address" placeholder="Full address" style="min-height:70px" required></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Contact Person Name <span class="required">*</span></label>
+            <input type="text" id="e-contact-person" placeholder="Name of HR / authorized person" required>
+          </div>
+          <div class="field">
+            <label class="field-label">Designation <span class="required">*</span></label>
+            <input type="text" id="e-designation" placeholder="e.g. HR Manager" required>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Mobile No.</label>
+            <input type="tel" id="e-mobile" placeholder="+91 XXXXX XXXXX">
+          </div>
+          <div class="field">
+            <label class="field-label">Office No.</label>
+            <input type="tel" placeholder="Office number">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Email ID</label>
+          <input type="email" id="e-email" placeholder="contact@company.com">
+        </div>
+        <div class="field">
+          <label class="field-label">Name(s) of GEC Bilaspur Employees at Your Organisation <span class="required">*</span>
+            <span style="font-size:12px;font-weight:400;color:var(--text-muted)">Please include Name, Branch and Batch</span>
+          </label>
+          <textarea placeholder="e.g. Rajesh Kumar , Priya Sharma ..." required></textarea>
+          <textarea placeholder="e.g. Computer Science , Electrical ..." required></textarea>
+          <textarea placeholder="e.g. 2016-20 , 2024-28 ..." required></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SURVEY -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📊</div>
+        <div>
+          <h2>Graduate Competency Survey</h2>
+          <p>Rate our graduates on the following Programme Outcomes (1 = Poor, 5 = Excellent)</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="note-box"><strong>Rating Scale</strong>5 = Excellent &nbsp;|&nbsp; 4 = Very Good &nbsp;|&nbsp; 3 = Good &nbsp;|&nbsp; 2 = Average &nbsp;|&nbsp; 1 = Poor</div>
+
+        <div class="rating-item">
+          <div class="rating-label">Engineering Knowledge <span class="sub">Apply mathematics, science &amp; engineering fundamentals to conceptualize engineering models</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_knowledge" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_knowledge" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_knowledge" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_knowledge" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_knowledge" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Problem Analysis <span class="sub">Identify, formulate &amp; analyze complex engineering problems</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_analysis" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_analysis" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_analysis" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_analysis" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_analysis" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Design &amp; Development of Solutions <span class="sub">Design systems &amp; components meeting specified needs</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_design" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_design" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_design" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_design" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_design" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Conduct Investigations of Complex Problems <span class="sub">Design experiments, analyze data &amp; synthesize valid conclusions</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_invest" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_invest" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_invest" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_invest" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_invest" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Modern Tool Usage <span class="sub">Apply appropriate techniques &amp; modern engineering tools</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_tools" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_tools" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_tools" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_tools" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_tools" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">The Engineer &amp; Society <span class="sub">Understand societal, health, safety, legal &amp; cultural responsibilities</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_society" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_society" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_society" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_society" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_society" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Environment &amp; Sustainability <span class="sub">Demonstrate knowledge of sustainable engineering development</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_sustain" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_sustain" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_sustain" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_sustain" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_sustain" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Ethics <span class="sub">Commit to professional ethics &amp; norms of engineering practice</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_ethics" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_ethics" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_ethics" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_ethics" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_ethics" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Individual &amp; Teamwork <span class="sub">Function effectively in diverse &amp; multi-disciplinary teams</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_team" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_team" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_team" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_team" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_team" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Communication <span class="sub">Communicate effectively, write reports &amp; make presentations</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_comm" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_comm" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_comm" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_comm" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_comm" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Project Management &amp; Finance <span class="sub">Knowledge of management, risk &amp; business practices</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_mgmt" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_mgmt" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_mgmt" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_mgmt" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_mgmt" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="rating-label">Life-Long Learning <span class="sub">Ability to engage in independent &amp; continuous self-development</span></div>
+          <div class="stars">
+            <label><input type="radio" name="po_learn" value="1" required><span class="star-dot">1</span></label>
+            <label><input type="radio" name="po_learn" value="2"><span class="star-dot">2</span></label>
+            <label><input type="radio" name="po_learn" value="3"><span class="star-dot">3</span></label>
+            <label><input type="radio" name="po_learn" value="4"><span class="star-dot">4</span></label>
+            <label><input type="radio" name="po_learn" value="5"><span class="star-dot">5</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLACEMENT / TRAINING -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🤝</div>
+        <div>
+          <h2>Placement &amp; Collaboration</h2>
+          <p>Partnership opportunities with GEC Bilaspur</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">Would you like to support academic or innovative activities of this institution? <span class="required">*</span></label>
+          <div class="yn-group">
+            <label class="yn-opt"><input type="radio" name="em_academic" value="yes" required><span class="yn-box">✅ Yes</span></label>
+            <label class="yn-opt"><input type="radio" name="em_academic" value="no"><span class="yn-box">❌ No</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Would you like to train GEC Bilaspur students at your organisation? <span class="required">*</span></label>
+          <div class="yn-group">
+            <label class="yn-opt"><input type="radio" name="em_train" value="yes" required><span class="yn-box">✅ Yes</span></label>
+            <label class="yn-opt"><input type="radio" name="em_train" value="no"><span class="yn-box">❌ No</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Are you interested in recruiting GEC Bilaspur graduates for your industry? <span class="required">*</span></label>
+          <div class="yn-group">
+            <label class="yn-opt"><input type="radio" name="em_recruit" value="yes" required><span class="yn-box">✅ Yes</span></label>
+            <label class="yn-opt"><input type="radio" name="em_recruit" value="no"><span class="yn-box">❌ No</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Would you be willing to visit GEC Bilaspur for academic interactions? <span class="required">*</span></label>
+          <div class="yn-group">
+            <label class="yn-opt"><input type="radio" name="em_visit" value="yes" required><span class="yn-box">✅ Yes</span></label>
+            <label class="yn-opt"><input type="radio" name="em_visit" value="no"><span class="yn-box">❌ No</span></label>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-title">Suggestions for Student Development</div>
+
+        <div class="field">
+          <label class="field-label">Current Industry Requirements / Skills Gap</label>
+          <textarea placeholder="What skills are most in demand in your industry right now?"></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Improvements in Teaching &amp; Learning Process</label>
+          <textarea placeholder="How can GEC Bilaspur better prepare students for industry?"></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Any Other Suggestions</label>
+          <textarea id="e-suggestions" placeholder="Any additional thoughts or recommendations..."></textarea>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button type="reset" class="btn-reset">Clear Form</button>
+        <button type="submit" class="btn-submit">Submit Feedback</button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+</main>
+
+<footer>
+  <strong>Government Engineering College, Bilaspur</strong><br>
+  Quality &amp; Accreditation Cell · All submissions are kept strictly confidential
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Feedback submitted successfully! Thank you.</div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+      b.classList.toggle('active', ['parent','employer'][i] === name);
+    });
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function handleSubmit(e, formName) {
+    e.preventDefault();
+
+    // For parent form, ensure email is verified before submitting
+    if (formName === 'parent') {
+      const submitBtn = document.getElementById('parent-submit-btn');
+      if (submitBtn && submitBtn.disabled) {
+        alert('Please verify your email address before submitting.');
+        return;
+      }
+    }
+
+    const SERVER = 'https://gec-feedback-backend.vercel.app';
+    let endpoint, data;
+
+    if (formName === 'parent') {
+      endpoint = SERVER + '/api/parent-feedback';
+      data = {
+        parent_name:       document.getElementById('p-parent-name')?.value || '',
+        roll_no:           document.getElementById('p-roll-no')?.value || '',
+        student_name:      document.getElementById('p-student-name')?.value || '',
+        email:             document.getElementById('parent-email')?.value || '',
+        academic_session:  document.getElementById('p-session')?.value || '',
+        branch:            document.getElementById('p-branch')?.value || '',
+        year_of_admission: document.getElementById('p-year')?.value || '',
+        duration_as_member:document.getElementById('p-duration')?.value || '',
+        satisfied:         document.querySelector('[name="p_satisfied"]:checked')?.value === 'yes',
+        suggestions:       document.getElementById('p-suggestions')?.value || '',
+      // Facility ratings
+      pf_library:        parseInt(document.querySelector('[name="pf_library"]:checked')?.value) || null,
+      pf_games:          parseInt(document.querySelector('[name="pf_games"]:checked')?.value) || null,
+      pf_canteen:        parseInt(document.querySelector('[name="pf_canteen"]:checked')?.value) || null,
+      pf_water:          parseInt(document.querySelector('[name="pf_water"]:checked')?.value) || null,
+      pf_toilet:         parseInt(document.querySelector('[name="pf_toilet"]:checked')?.value) || null,
+      pf_class:          parseInt(document.querySelector('[name="pf_class"]:checked')?.value) || null,
+      pf_lab:            parseInt(document.querySelector('[name="pf_lab"]:checked')?.value) || null,
+      pf_personality:    parseInt(document.querySelector('[name="pf_personality"]:checked')?.value) || null,
+      pf_career:         parseInt(document.querySelector('[name="pf_career"]:checked')?.value) || null,
+      // Teaching ratings
+      pt_attitude:       parseInt(document.querySelector('[name="pt_attitude"]:checked')?.value) || null,
+      pt_quality:        parseInt(document.querySelector('[name="pt_quality"]:checked')?.value) || null,
+      pt_exams:          parseInt(document.querySelector('[name="pt_exams"]:checked')?.value) || null,
+      pt_discipline:     parseInt(document.querySelector('[name="pt_discipline"]:checked')?.value) || null,
+      pp_placement:      parseInt(document.querySelector('[name="pp_placement"]:checked')?.value) || null
+      };
+    } else {
+      endpoint = SERVER + '/api/employer-feedback';
+      data = {
+        organisation_name: document.getElementById('e-org-name')?.value || '',
+        industry_type:     document.getElementById('e-industry-type')?.value || '',
+        address:           document.getElementById('e-address')?.value || '',
+        contact_person:    document.getElementById('e-contact-person')?.value || '',
+        designation:       document.getElementById('e-designation')?.value || '',
+        mobile:            document.getElementById('e-mobile')?.value || '',
+        email:             document.getElementById('e-email')?.value || '',
+        suggestions:       document.getElementById('e-suggestions')?.value || '',
+      // Programme outcome ratings
+      po_knowledge:      parseInt(document.querySelector('[name="po_knowledge"]:checked')?.value) || null,
+      po_analysis:       parseInt(document.querySelector('[name="po_analysis"]:checked')?.value) || null,
+      po_design:         parseInt(document.querySelector('[name="po_design"]:checked')?.value) || null,
+      po_invest:         parseInt(document.querySelector('[name="po_invest"]:checked')?.value) || null,
+      po_tools:          parseInt(document.querySelector('[name="po_tools"]:checked')?.value) || null,
+      po_society:        parseInt(document.querySelector('[name="po_society"]:checked')?.value) || null,
+      po_sustain:        parseInt(document.querySelector('[name="po_sustain"]:checked')?.value) || null,
+      po_ethics:         parseInt(document.querySelector('[name="po_ethics"]:checked')?.value) || null,
+      po_team:           parseInt(document.querySelector('[name="po_team"]:checked')?.value) || null,
+      po_comm:           parseInt(document.querySelector('[name="po_comm"]:checked')?.value) || null,
+      po_mgmt:           parseInt(document.querySelector('[name="po_mgmt"]:checked')?.value) || null,
+      po_learn:          parseInt(document.querySelector('[name="po_learn"]:checked')?.value) || null
+      };
+    }
+
+    try {
+      const res  = await fetch(endpoint, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (json.success) {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+        e.target.reset();
+      } else {
+        alert('Submission failed: ' + json.message);
+      }
+    } catch (err) {
+      alert('Could not connect to server. Please make sure the server is running.');
+    }
+  }
+</script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // ╔══════════════════════════════════════════════════════╗
+  // ║  PASTE YOUR FIREBASE CONFIG HERE                     ║
+  // ║  Get it from: Firebase Console → Project Settings   ║
+  // ╚══════════════════════════════════════════════════════╝
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDw3Qv-i3_q8KTCdqVcI9vDm18K-FsgLsU",
+    authDomain:        "gec-feedback-a467e.firebaseapp.com",
+    projectId:         "gec-feedback-a467e",
+    storageBucket:     "gec-feedback-a467e.firebasestorage.app",
+    messagingSenderId: "365061087175",
+    appId:             "1:365061087175:web:f65802d3db5140baf783e2"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const TEMP_PASSWORD = "GEC@BilaspurFeedback#2025";
+  let verificationInterval = null;
+
+  window.sendVerificationEmail = async function () {
+    const emailInput  = document.getElementById("parent-email");
+    const verifyBtn   = document.getElementById("verify-btn");
+    const statusEl    = document.getElementById("email-status");
+    const submitBtn   = document.getElementById("parent-submit-btn");
+    const email       = emailInput.value.trim();
+
+    // Basic format check
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      statusEl.className = "email-status-msg error";
+      statusEl.textContent = "⚠️ Please enter a valid email address first.";
+      return;
+    }
+
+    verifyBtn.disabled  = true;
+    verifyBtn.textContent = "Sending…";
+    statusEl.className  = "email-status-msg info";
+    statusEl.textContent = "📨 Sending verification link…";
+
+    try {
+      let userCredential;
+      try {
+        // Try creating a new account
+        userCredential = await createUserWithEmailAndPassword(auth, email, TEMP_PASSWORD);
+      } catch (createErr) {
+        if (createErr.code === "auth/email-already-in-use") {
+          // Email already registered — sign in instead
+          userCredential = await signInWithEmailAndPassword(auth, email, TEMP_PASSWORD);
+          if (userCredential.user.emailVerified) {
+            statusEl.className  = "email-status-msg success";
+            statusEl.textContent = "✅ Email already verified! You may submit the form.";
+            submitBtn.disabled   = false;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor  = "pointer";
+            verifyBtn.textContent = "Verified ✓";
+            return;
+          }
+        } else {
+          throw createErr;
+        }
+      }
+
+      // Send the verification email
+      await sendEmailVerification(userCredential.user);
+
+      verifyBtn.textContent = "Link Sent ✓";
+      emailInput.readOnly   = true;
+      statusEl.className    = "email-status-msg info";
+      statusEl.textContent  = "📬 Verification link sent! Check your inbox and click the link, then return here.";
+
+      // Poll every 4 seconds to detect when the user clicks the link
+      verificationInterval = setInterval(async () => {
+        try {
+          await userCredential.user.reload();
+          if (userCredential.user.emailVerified) {
+            clearInterval(verificationInterval);
+            statusEl.className   = "email-status-msg success";
+            statusEl.textContent = "✅ Email verified! You may now submit the form.";
+            submitBtn.disabled   = false;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor  = "pointer";
+          }
+        } catch (_) { /* ignore reload errors */ }
+      }, 4000);
+
+    } catch (err) {
+      verifyBtn.disabled    = false;
+      verifyBtn.textContent = "Send Link";
+      statusEl.className    = "email-status-msg error";
+
+      if (err.code === "auth/invalid-api-key" || err.code === "auth/api-key-not-valid.-please-pass-a-valid-api-key.") {
+        statusEl.textContent = "⚠️ Firebase not configured yet. Please add your Firebase config (see notice above the email field).";
+      } else if (err.code === "auth/network-request-failed") {
+        statusEl.textContent = "⚠️ Network error. Please check your internet connection.";
+      } else {
+        statusEl.textContent = "⚠️ Error: " + err.message;
+      }
+    }
+  };
+</script>
+
+</body>
+</html>
