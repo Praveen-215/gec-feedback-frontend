@@ -313,6 +313,13 @@
                   <th>Contact Person</th>
                   <th>Email</th>
                   <th>Mobile</th>
+                  <th>Support Academic</th>
+                  <th>Train Students</th>
+                  <th>Recruit Graduates</th>
+                  <th>Visit College</th>
+                  <th>Skills Gap</th>
+                  <th>Teaching Improvements</th>
+                  <th>Other Suggestions</th>
                   <th>Avg Rating</th>
                   <th>Submitted</th>
                 </tr>
@@ -329,7 +336,7 @@
 
 <script>
   const API = 'https://gec-feedback-backend.vercel.app';
-  const ADMIN_PASSWORD = 'admin@gec2025';
+  const ADMIN_PASSWORD = 'gec@admin2025';
   const ADMIN_TOKEN = 'gec-admin-2025';
 
   let parentData = [];
@@ -524,6 +531,13 @@
         <td>${r.contact_person || '-'}</td>
         <td style="font-size:12px;">${r.email || '-'}</td>
         <td>${r.mobile || '-'}</td>
+        <td><span class="badge ${r.support_academic === 'yes' ? 'badge-yes' : 'badge-no'}">${r.support_academic || '-'}</span></td>
+        <td><span class="badge ${r.train_students === 'yes' ? 'badge-yes' : 'badge-no'}">${r.train_students || '-'}</span></td>
+        <td><span class="badge ${r.recruit_graduates === 'yes' ? 'badge-yes' : 'badge-no'}">${r.recruit_graduates || '-'}</span></td>
+        <td><span class="badge ${r.visit_college === 'yes' ? 'badge-yes' : 'badge-no'}">${r.visit_college || '-'}</span></td>
+        <td style="font-size:12px;max-width:150px;">${r.skills_gap || '-'}</td>
+        <td style="font-size:12px;max-width:150px;">${r.teaching_improvements || '-'}</td>
+        <td style="font-size:12px;max-width:150px;">${r.other_suggestions || '-'}</td>
         <td><span class="rating-pill">${rowAvg(r, poKeys)}</span></td>
         <td style="font-size:12px;">${formatDate(r.submitted_at)}</td>
       </tr>
@@ -597,10 +611,12 @@
     const wb = XLSX.utils.book_new();
 
     // Sheet 1 - Raw Data
-    const headers = ['ID','Organisation','Industry Type','Address','Contact Person','Designation','Mobile','Email','Suggestions','Eng Knowledge','Problem Analysis','Design','Investigation','Tools','Society','Sustainability','Ethics','Teamwork','Communication','Management','Lifelong Learning','Submitted At'];
+    const headers = ['ID','Organisation','Industry Type','Address','Contact Person','Designation','Mobile','Email','Suggestions','Support Academic','Train Students','Recruit Graduates','Visit College','Skills Gap','Teaching Improvements','Other Suggestions','Eng Knowledge','Problem Analysis','Design','Investigation','Tools','Society','Sustainability','Ethics','Teamwork','Communication','Management','Lifelong Learning','Submitted At'];
     const rows = employerData.map(r => [
       r.id, r.organisation_name, r.industry_type, r.address,
       r.contact_person, r.designation, r.mobile, r.email, r.suggestions,
+      r.support_academic, r.train_students, r.recruit_graduates, r.visit_college,
+      r.skills_gap, r.teaching_improvements, r.other_suggestions,
       r.po_knowledge, r.po_analysis, r.po_design, r.po_invest, r.po_tools,
       r.po_society, r.po_sustain, r.po_ethics, r.po_team, r.po_comm,
       r.po_mgmt, r.po_learn, formatDate(r.submitted_at)
