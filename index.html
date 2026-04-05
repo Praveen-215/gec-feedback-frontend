@@ -1264,6 +1264,13 @@
         mobile:            document.getElementById('e-mobile')?.value || '',
         email:             document.getElementById('e-email')?.value || '',
         suggestions:       document.getElementById('e-suggestions')?.value || '',
+      support_academic:  document.querySelector('[name="em_academic"]:checked')?.value || '',
+      train_students:    document.querySelector('[name="em_train"]:checked')?.value || '',
+      recruit_graduates: document.querySelector('[name="em_recruit"]:checked')?.value || '',
+      visit_college:     document.querySelector('[name="em_visit"]:checked')?.value || '',
+      skills_gap:        document.querySelector('[placeholder="What skills are most in demand in your industry right now?"]')?.value || '',
+      teaching_improvements: document.querySelector('[placeholder="How can GEC Bilaspur better prepare students for industry?"]')?.value || '',
+      other_suggestions: document.querySelector('[placeholder="Any additional thoughts or recommendations..."]')?.value || '',
       // Programme outcome ratings
       po_knowledge:      parseInt(document.querySelector('[name="po_knowledge"]:checked')?.value) || null,
       po_analysis:       parseInt(document.querySelector('[name="po_analysis"]:checked')?.value) || null,
